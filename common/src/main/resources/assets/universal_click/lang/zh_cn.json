@@ -1,0 +1,18 @@
+{
+  "key.universal_click.toggleright": "自动右击",
+  "key.universal_click.toggleleft": "自动左击",
+  "key.universal_click.togglesmartattack": "智能攻击",
+  "key.universal_click.toggleholdright": "保持长按右键",
+  "key.universal_click.speed": "更改自动点击速度",
+  "key.category.universal_click.key_categories": "通用点击",
+
+  "universal_click.configuration.title": "universal_click",
+  "universal_click.configuration.section.universal.click.client.toml": "universal_click",
+  "universal_click.configuration.section.universal.click.client.toml.title": "通用点击 配置选项",
+  "universal_click.configuration.ticksStep": "操作间隔",
+  "universal_click.configuration.ticksStep.tooltip": "进行点击等操作时的间隔tick数",
+  "universal_click.configuration.maxTicksBetweenClicks": "最大间隔",
+  "universal_click.configuration.maxTicksBetweenClicks.tooltip": "循环切换自动点击间隔时可切换至的最大tick,默认为10",
+  "universal_click.configuration.minTicksBetweenClicks": "最小间隔",
+  "universal_click.configuration.minTicksBetweenClicks.tooltip": "循环切换自动点击间隔时可切换至的最小tick,默认为1"
+}

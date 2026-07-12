@@ -1,0 +1,18 @@
+{
+  "key.universal_click.toggleright": "Auto-Click Right Mouse Button",
+  "key.universal_click.toggleleft": "Auto-Click Left Mouse Button",
+  "key.universal_click.togglesmartattack": "Toggle Smart Attack",
+  "key.universal_click.toggleholdright": "Hold Right Mouse Button",
+  "key.universal_click.speed": "Change auto clicking speed",
+  "key.category.universal_click.key_categories": "Universal Click",
+
+  "universal_click.configuration.title": "universal_click",
+  "universal_click.configuration.section.universal.click.client.toml": "universal_click",
+  "universal_click.configuration.section.universal.click.client.toml.title": "Universal Click Configs",
+  "universal_click.configuration.ticksStep":"Default ticks step",
+  "universal_click.configuration.ticksStep.tooltip":"When changing auto click interval, by how much should it change",
+  "universal_click.configuration.maxTicksBetweenClicks":"Max ticks between clicks",
+  "universal_click.configuration.maxTicksBetweenClicks.tooltip":"The maximal auto click interval possible before looping back to the minimum",
+  "universal_click.configuration.minTicksBetweenClicks":"Min ticks between clicks",
+  "universal_click.configuration.minTicksBetweenClicks.tooltip":"The minimal auto click interval"
+}
