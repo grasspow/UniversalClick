@@ -2,14 +2,13 @@ package grasspow.universal_click;
 
 import grasspow.universal_click.impl.KeyBind;
 import grasspow.universal_click.impl.RayTrace;
+import grasspow.universal_click.mixin.MinecraftAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.multiplayer.chat.GuiMessageTag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
-import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.world.InteractionHand;
 
 import java.util.ArrayList;
@@ -107,7 +106,7 @@ public class ClickHandler {
                     sendMessage("Auto right clicking has stopped because a GUI opened");
                     shouldRightClick = false;
                 } else if (rightCooldown == 0) {
-                    minecraft.startUseItem();
+                    ((MinecraftAccessor) minecraft).invokeStartUseItem();
                     rightCooldown = clickTickInterval - 1;
                 } else {
                     rightCooldown--;
@@ -115,7 +114,7 @@ public class ClickHandler {
             }
 
             if (holdingRightButton && !isInGame() && minecraft.rightClickDelay == 0 && !isPlayerHandBusy()) {
-                minecraft.startUseItem();
+                ((MinecraftAccessor) minecraft).invokeStartUseItem();
             }
 
             if (holdRightWasPressed && !myKeyToggleHoldRight.isDown()) {
