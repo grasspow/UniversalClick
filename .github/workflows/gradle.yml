@@ -9,9 +9,9 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "26.1.2" ]
+    branches: [ "26.x" ]
   pull_request:
-    branches: [ "26.1.2" ]
+    branches: [ "26.x" ]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
