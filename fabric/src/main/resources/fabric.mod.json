@@ -15,17 +15,16 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "grasspow.universal_click.client.UniversalClickFabric"
+      "grasspow.universal_click.client.UniversalClickFabricClient"
     ]
   },
   "mixins": [
-    "${mod_id}.mixins.json",
-    "${mod_id}.fabric.mixins.json"
+    "${mod_id}.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${fabric_loader_version}",
     "fabric-api": "*",
-    "minecraft": ">=${min_minecraft_version},<${max_minecraft_version}",
+    "minecraft": ">=${min_minecraft_version} <${max_minecraft_version}",
     "java": ">=${java_version}"
   },
   "suggests": {

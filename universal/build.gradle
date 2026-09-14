@@ -1,0 +1,67 @@
+plugins {
+    id 'base'
+}
+
+def fabricRemapJar = project(':fabric').tasks.named('jar')
+def neoForgeJar = project(':neoforge').tasks.named('jar')
+
+tasks.register('universalJar', Jar) {
+    group = 'build'
+    description = 'Builds a universal Fabric + NeoForge mod jar.'
+
+    dependsOn fabricRemapJar
+    dependsOn neoForgeJar
+
+    archiveBaseName.set(rootProject.mod_id)
+    archiveVersion.set("mc${rootProject.range_minecraft_version}-${rootProject.version}")
+    archiveClassifier.set('')
+
+    destinationDirectory.set(
+            rootProject.layout.buildDirectory.dir('libs')
+    )
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // 先使用 Fabric remap 后的 JAR 作为基础。
+    from({
+        zipTree(
+                fabricRemapJar.get()
+                        .archiveFile
+                        .get()
+                        .asFile
+        )
+    }) {
+        exclude 'META-INF/MANIFEST.MF'
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.RSA'
+        exclude 'META-INF/*.DSA'
+    }
+
+    // 再加入 NeoForge。
+    from({
+        zipTree(
+                neoForgeJar.get()
+                        .archiveFile
+                        .get()
+                        .asFile
+        )
+    }) {
+        // Fabric 的 metadata 已经存在于第一个 JAR，
+        // NeoForge 这里只排除不需要的签名/manifest。
+        exclude 'META-INF/MANIFEST.MF'
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.RSA'
+        exclude 'META-INF/*.DSA'
+    }
+
+    manifest {
+        attributes(
+                'Implementation-Title': rootProject.mod_id,
+                'Implementation-Version': rootProject.version
+        )
+    }
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('universalJar')
+}

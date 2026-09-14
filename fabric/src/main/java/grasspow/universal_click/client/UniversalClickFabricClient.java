@@ -13,7 +13,7 @@ import net.minecraft.resources.Identifier;
 
 import static grasspow.universal_click.KeyMappings.*;
 
-public class UniversalClickFabric implements ClientModInitializer {
+public class UniversalClickFabricClient implements ClientModInitializer {
 
 
     private ClickHandler clickHandler;

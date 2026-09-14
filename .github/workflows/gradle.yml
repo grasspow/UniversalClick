@@ -42,6 +42,9 @@ jobs:
       - name: fabric build
         run: ./gradlew :fabric:clean && ./gradlew :fabric:jar
 
+      - name: merge jar
+        run: ./gradlew :universal:clean && ./gradlew :universal:universalJar
+
       - name: Upload fabric Build Artifact
         uses: actions/upload-artifact@v7.0.1
         with:
@@ -54,4 +57,11 @@ jobs:
         with:
           name: neoforge
           path: neoforge/build/libs/universal_click*.jar
+          archive: false
+
+      - name: Upload merged jar
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: neoforge
+          path: build/libs/universal_click*.jar
           archive: false
