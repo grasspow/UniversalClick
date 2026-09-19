@@ -4,6 +4,7 @@ import grasspow.universal_click.impl.KeyBind;
 import grasspow.universal_click.impl.RayTrace;
 import grasspow.universal_click.mixin.MinecraftAccessor;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.multiplayer.chat.GuiMessageTag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
@@ -102,7 +103,7 @@ public class ClickHandler {
             }
 
             if (shouldRightClick) {
-                if (!isInGame() && !isInPauseMenu()) {
+                if (isInGame() && !isInPauseMenu()) {
                     sendMessage("Auto right clicking has stopped because a GUI opened");
                     shouldRightClick = false;
                 } else if (rightCooldown == 0) {
@@ -113,7 +114,7 @@ public class ClickHandler {
                 }
             }
 
-            if (holdingRightButton && !isInGame() && minecraft.rightClickDelay == 0 && !isPlayerHandBusy()) {
+            if (holdingRightButton && isInGame() && minecraft.rightClickDelay == 0 && !isPlayerHandBusy()) {
                 ((MinecraftAccessor) minecraft).invokeStartUseItem();
             }
 
@@ -203,7 +204,7 @@ public class ClickHandler {
     }
 
     private boolean isInGame() {
-        return minecraft.screen == null;
+        return minecraft.screen != null;
     }
 
     private boolean isInPauseMenu() {
@@ -223,15 +224,21 @@ public class ClickHandler {
     }
 
     private void sendMessage(String message) {
-        minecraft.gui.getChat().addClientSystemMessage(Component.literal(message).withStyle(ChatFormatting.RED));
+        ChatComponent chat = VersionCompact.getChat(minecraft);
+        if (chat != null) {
+            chat.addClientSystemMessage(Component.literal(message).withStyle(ChatFormatting.RED));
+        }
     }
 
     private void sendMessageWithId(String message) {
-        minecraft.gui.getChat().addPlayerMessage(
-                Component.literal(message),
-                new MessageSignature(SIGNATURE_BYTES),
-                GuiMessageTag.system()
-        );
+        ChatComponent chat = VersionCompact.getChat(minecraft);
+        if (chat != null) {
+            chat.addPlayerMessage(
+                    Component.literal(message),
+                    new MessageSignature(SIGNATURE_BYTES),
+                    GuiMessageTag.system()
+            );
+        }
     }
 
     private void disableAutoLeftByConflict() {

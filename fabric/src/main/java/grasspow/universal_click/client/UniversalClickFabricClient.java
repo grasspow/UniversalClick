@@ -62,6 +62,7 @@ public class UniversalClickFabricClient implements ClientModInitializer {
                 Identifier.fromNamespaceAndPath(UniversalClick.MOD_ID, "hud_overlay"),
                 new FabricHudElement()
         );
+        VersionCompact.init();
     }
 
     private void lazyInit(Minecraft client) {
