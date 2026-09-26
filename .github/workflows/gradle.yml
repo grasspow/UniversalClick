@@ -34,7 +34,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: build
-        run: ./gradlew clean && ./gradlew build
+        run: ./gradlew clean && ./gradlew universalJar
 
       - name: Upload merged jar
         uses: actions/upload-artifact@v7.0.1
