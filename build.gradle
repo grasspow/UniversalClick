@@ -4,3 +4,44 @@ plugins {
     // see https://projects.neoforged.net/neoforged/moddevgradle for new versions
     id 'net.neoforged.moddev' version '2.0.141' apply false
 }
+
+// for versions debug, set system props first
+// System.setProperty("dev.minecraft.versions.dir", "/path/to/minecraft/.minecraft/versions")
+tasks.register('copyMod') {
+    group = 'mod'
+    description = 'copy mod to minecraft dev runtimes'
+
+    def versionsDir = file(System.getProperty("dev.minecraft.versions.dir")
+            ?: "${System.getProperty('user.home')}/.minecraft/versions")
+
+    dependsOn(project("universal").tasks.named("universalJar"))
+
+    doLast {
+        def libsDir = file("$buildDir/libs")
+
+        def modFiles = libsDir.listFiles()?.findAll {
+            it.isFile() && it.name.endsWith(".jar")
+        }
+
+        if (!modFiles) {
+            throw new GradleException("cannot find mod jar: ${libsDir}")
+        }
+
+        if (!versionsDir.exists()) {
+            throw new GradleException("Minecraft versions not found: ${versionsDir}")
+        }
+
+        versionsDir.eachDir { versionDir ->
+            def modsDir = new File(versionDir, "mods")
+
+            modFiles.each { modFile ->
+                copy {
+                    from modFile
+                    into modsDir
+                }
+
+                println("copy ${modFile.name} to versions/${versionDir.name}/mods")
+            }
+        }
+    }
+}
