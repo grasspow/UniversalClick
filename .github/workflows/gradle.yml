@@ -13,9 +13,6 @@ on:
   pull_request:
     branches: [ "26.x" ]
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   build:
 
@@ -34,30 +31,10 @@ jobs:
       # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
       # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+        uses: gradle/actions/setup-gradle@v6
 
-      - name: neoforge build
-        run: ./gradlew :neoforge:clean && ./gradlew :neoforge:jar
-
-      - name: fabric build
-        run: ./gradlew :fabric:clean && ./gradlew :fabric:jar
-
-      - name: merge jar
-        run: ./gradlew :universal:clean && ./gradlew :universal:universalJar
-
-      - name: Upload fabric Build Artifact
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: fabric
-          path: fabric/build/libs/universal_click*.jar
-          archive: false
-
-      - name: Upload neoforge Build Artifact
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: neoforge
-          path: neoforge/build/libs/universal_click*.jar
-          archive: false
+      - name: build
+        run: ./gradlew clean && ./gradlew build
 
       - name: Upload merged jar
         uses: actions/upload-artifact@v7.0.1
