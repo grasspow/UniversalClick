@@ -1,5 +1,6 @@
 package grasspow.universal_click;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
@@ -18,11 +19,11 @@ public class KeyMappings {
     public static KeyMapping KEY_SPEED;
 
     public static void initKeybindings(Consumer<KeyMapping> consumer) {
-        KEY_TOGGLE_RIGHT = new KeyMapping("key." + UniversalClick.MOD_ID + ".toggleright", GLFW.GLFW_KEY_UNKNOWN, KEY_CATEGORY);
-        KEY_TOGGLE_LEFT = new KeyMapping("key." + UniversalClick.MOD_ID + ".toggleleft", GLFW.GLFW_KEY_UNKNOWN, KEY_CATEGORY);
-        KEY_TOGGLE_SMART_ATTACK = new KeyMapping("key." + UniversalClick.MOD_ID + ".togglesmartattack", GLFW.GLFW_KEY_UNKNOWN, KEY_CATEGORY);
-        KEY_TOGGLE_HOLD_RIGHT = new KeyMapping("key." + UniversalClick.MOD_ID + ".toggleholdright", GLFW.GLFW_KEY_UNKNOWN, KEY_CATEGORY);
-        KEY_SPEED = new KeyMapping("key." + UniversalClick.MOD_ID + ".speed", GLFW.GLFW_KEY_UNKNOWN, KEY_CATEGORY);
+        KEY_TOGGLE_RIGHT = new KeyMapping("key." + UniversalClick.MOD_ID + ".toggleright", InputConstants.UNKNOWN.getValue(), KEY_CATEGORY);
+        KEY_TOGGLE_LEFT = new KeyMapping("key." + UniversalClick.MOD_ID + ".toggleleft", InputConstants.UNKNOWN.getValue(), KEY_CATEGORY);
+        KEY_TOGGLE_SMART_ATTACK = new KeyMapping("key." + UniversalClick.MOD_ID + ".togglesmartattack", InputConstants.UNKNOWN.getValue(), KEY_CATEGORY);
+        KEY_TOGGLE_HOLD_RIGHT = new KeyMapping("key." + UniversalClick.MOD_ID + ".toggleholdright", InputConstants.UNKNOWN.getValue(), KEY_CATEGORY);
+        KEY_SPEED = new KeyMapping("key." + UniversalClick.MOD_ID + ".speed", InputConstants.UNKNOWN.getValue(), KEY_CATEGORY);
 
         consumer.accept(KEY_TOGGLE_RIGHT);
         consumer.accept(KEY_TOGGLE_LEFT);
