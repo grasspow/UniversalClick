@@ -173,7 +173,7 @@ public class ClickHandler {
             }
 
             if (shouldSwing && minecraft.player != null) {
-                minecraft.player.swing(InteractionHand.MAIN_HAND);
+                VersionCompact.doSwing(minecraft);
             }
         }
     }

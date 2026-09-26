@@ -4,20 +4,26 @@ import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Mob;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 public class VersionCompact {
 
-    // 26.2
+    // 26.2, 26.3
     public static Class<?> hudClazz;
     public static Field hudField;
     public static Method getChatMethod;
     static final String MC_VERSION = SharedConstants.getCurrentVersion().name();
 
+    //26.3
+    public static Method swingForAttackMethod;
+
     public static void init() {
-        if (MC_VERSION.equals("26.2")) {
+        UniversalClick.LOG.info("Initializing version compact, minecraft version: " + MC_VERSION);
+        if (MC_VERSION.equals("26.2") || MC_VERSION.equals("26.3")) {
             try {
                 hudClazz = Class.forName("net.minecraft.client.gui.Hud");
                 hudField = Gui.class.getField("hud");
@@ -31,11 +37,18 @@ public class VersionCompact {
                 UniversalClick.LOG.error("Couldn't find Method for Minecraft 26.2: \"net.minecraft.client.gui.Hud#getChat\"");
             }
         }
+        if (MC_VERSION.equals("26.3")) {
+            try {
+                swingForAttackMethod = Mob.class.getMethod("swingForAttack");
+            } catch (NoSuchMethodException e) {
+                UniversalClick.LOG.error("Couldn't find Method for Minecraft 26.3:\"net.minecraft.world.entity.Mob.swingForAttack\"");
+            }
+        }
     }
 
     public static ChatComponent getChat(Minecraft mc) {
         switch (MC_VERSION) {
-            case "26.2" -> {
+            case "26.2", "26.3" -> {
                 if (hudField == null) return null;
                 try {
                     Object o = hudField.get(mc.gui);
@@ -51,5 +64,24 @@ public class VersionCompact {
             }
         }
         return null;
+    }
+
+    public static void doSwing(Minecraft mc) {
+        switch (MC_VERSION) {
+            case "26.3" -> {
+                try {
+                    swingForAttackMethod.invoke(mc.player);
+                } catch (Exception e) {
+                    UniversalClick.LOG.error("Error while invoke swing method from Minecraft 26.3: {}", e.getMessage());
+                }
+            }
+            default -> {
+                if (mc.player==null) {
+                    UniversalClick.LOG.error("field \"minecraft.player\" is null!");
+                    return;
+                }
+                mc.player.swing(InteractionHand.MAIN_HAND);
+            }
+        }
     }
 }
