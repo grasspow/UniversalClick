@@ -46,11 +46,7 @@ public class UniversalClickNeoForgeClient {
 
         Minecraft mc = Minecraft.getInstance();
 
-        clickHandler = new ClickHandler(
-                mc,
-                NeoForgeConfig.CONFIG,
-                new NeoForgeClickInputHandler()
-        );
+        clickHandler = new ClickHandler(mc, NeoForgeConfig.CONFIG);
 
         ClickHandlerAccess.set(clickHandler);
     }

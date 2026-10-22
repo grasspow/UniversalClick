@@ -11,10 +11,19 @@ public interface MinecraftAccessor {
     @Invoker("startUseItem")
     void invokeStartUseItem();
 
+    @Invoker("startAttack")
+    boolean invokeStartAttack();
+
+    @Invoker("continueAttack")
+    void invokeContinueAttack(boolean down);
+
     @Accessor("rightClickDelay")
     int getRightClickDelay();
 
     @Accessor("rightClickDelay")
     void setRightClickDelay(int delay);
+
+    @Accessor("missTime")
+    void setMissTime(int missTime);
 
 }

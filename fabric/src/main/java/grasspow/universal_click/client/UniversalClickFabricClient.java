@@ -77,11 +77,7 @@ public class UniversalClickFabricClient implements ClientModInitializer {
         initialized = true;
 
         FabricConfig config = new FabricConfig();
-        clickHandler = new ClickHandler(
-                client,
-                config,
-                new FabricClickInputHandler()
-        );
+        clickHandler = new ClickHandler(client, config);
 
         ClickHandlerAccess.set(clickHandler);
     }

@@ -6,7 +6,8 @@
   "mixins": [],
   "client": [
     "KeyMappingAccessor",
-    "MinecraftAccessor"
+    "MinecraftAccessor",
+    "MinecraftMixin"
   ],
   "server": [],
   "injectors": {

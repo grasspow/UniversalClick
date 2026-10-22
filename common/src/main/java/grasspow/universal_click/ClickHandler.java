@@ -1,16 +1,16 @@
 package grasspow.universal_click;
 
 import grasspow.universal_click.impl.KeyBind;
-import grasspow.universal_click.impl.RayTrace;
 import grasspow.universal_click.mixin.MinecraftAccessor;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.components.ChatComponent;
-import net.minecraft.client.multiplayer.chat.GuiMessageTag;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.PauseScreen;
+import net.minecraft.client.multiplayer.chat.GuiMessageTag;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,6 @@ public class ClickHandler {
 
     private final Minecraft minecraft;
     private final ClickConfig config;
-    private final IClickInputHandler clickInputHandler;
 
     private final IKeyBind myKeyUse;
     private final IKeyBind myKeyToggleRight;
@@ -39,6 +38,8 @@ public class ClickHandler {
     private boolean holdRightWasPressed = false;
     private int leftCooldown = 0;
     private int rightCooldown = 0;
+    private BlockPos lastDestroyPos;
+    private boolean internalContinue;
 
     private static final byte[] SIGNATURE_BYTES = new byte[]{
             (byte) 0xad, 0x54, (byte) 0xba, 0x5b, 0x71, 0x35, 0x0d, (byte) 0x90,
@@ -75,10 +76,9 @@ public class ClickHandler {
             (byte) 0xdb, 0x66, 0x1d, (byte) 0xf4, (byte) 0xf6, (byte) 0xe6, (byte) 0xe1, (byte) 0xf1
     };
 
-    public ClickHandler(Minecraft minecraft, ClickConfig config, IClickInputHandler clickInputHandler) {
+    public ClickHandler(Minecraft minecraft, ClickConfig config) {
         this.minecraft = minecraft;
         this.config = config;
-        this.clickInputHandler = clickInputHandler;
         this.myKeyUse = new KeyBind(minecraft.options.keyUse);
         this.myKeyToggleRight = new KeyBind(KEY_TOGGLE_RIGHT);
         this.myKeyToggleLeft = new KeyBind(KEY_TOGGLE_LEFT);
@@ -94,9 +94,18 @@ public class ClickHandler {
         }
 
         if (!minecraft.isPaused()) {
+            boolean startedLeftThisTick = false;
+
+            if (shouldLeftClick && minecraft.screen != null) {
+                // Vanilla resets missTime in continueAttack(false), but that
+                // path is not called while a screen is open. Keep auto-left
+                // usable behind an open screen, as it was before.
+                ((MinecraftAccessor) minecraft).setMissTime(0);
+            }
+
             if (shouldLeftClick) {
                 if (leftCooldown == 0) {
-                    leftClick(false);
+                    startedLeftThisTick = leftClick(false);
                     leftCooldown = clickTickInterval - 1;
                 } else {
                     leftCooldown--;
@@ -105,6 +114,17 @@ public class ClickHandler {
 
             if (shouldSmartAttack) {
                 leftClick(true);
+            }
+
+            // startAttack only starts a new block break. Keep the vanilla
+            // continueDestroyBlock path alive while auto-left is enabled.
+            if (shouldLeftClick && !startedLeftThisTick) {
+                internalContinue = true;
+                try {
+                    ((MinecraftAccessor) minecraft).invokeContinueAttack(true);
+                } finally {
+                    internalContinue = false;
+                }
             }
 
             if (shouldRightClick) {
@@ -138,7 +158,12 @@ public class ClickHandler {
     public void onKeyPressed() {
         if (myKeyToggleLeft.isDown()) {
             disableSmartAttackByConflict();
-            shouldLeftClick = !shouldLeftClick;
+            if (shouldLeftClick) {
+                stopAutoLeft();
+            } else {
+                lastDestroyPos = null;
+                shouldLeftClick = true;
+            }
         }
         if (myKeyToggleSmartAttack.isDown()) {
             disableAutoLeftByConflict();
@@ -174,7 +199,7 @@ public class ClickHandler {
      * Clears all transient click state. Safe to call when no world is loaded.
      */
     public void reset() {
-        shouldLeftClick = false;
+        stopAutoLeft();
         shouldSmartAttack = false;
         shouldRightClick = false;
         stopHoldingRight();
@@ -182,21 +207,65 @@ public class ClickHandler {
         rightCooldown = 0;
     }
 
-    public void leftClick(boolean smart) {
-        IRayTrace rayTrace = getRayTrace();
-        boolean shouldSwing = clickInputHandler != null && clickInputHandler.postAttackInputEvent();
-
-        if (!smart || getSmartAttackCooldown() == 1.0F) {
-            if (rayTrace.isBlockTrace() && !rayTrace.isMissType() && !rayTrace.isEmptyBlock(minecraft)) {
-                rayTrace.leftClickBlock(minecraft);
-            } else if (rayTrace.isEntityTrace() && rayTrace.isLookingAtEntity(minecraft)) {
-                rayTrace.leftClickEntity(minecraft);
-            }
-
-            if (shouldSwing && minecraft.player != null) {
-                VersionCompact.doSwing(minecraft);
-            }
+    /**
+     * @return true when a startAttack call was made; false when the current block
+     *         destruction is already in progress and should be continued by onTick.
+     */
+    public boolean leftClick(boolean smart) {
+        if (smart && getSmartAttackCooldown() != 1.0F) {
+            return false;
         }
+
+        if (!smart && isSameBlockBeingDestroyed()) {
+            return false;
+        }
+
+        ((MinecraftAccessor) minecraft).invokeStartAttack();
+        return true;
+    }
+
+    /**
+     * Used by the MinecraftMixin to keep vanilla from stopping auto-left mining
+     * between ticks.
+     */
+    public boolean shouldOwnLeftClick() {
+        return shouldLeftClick
+                && !minecraft.isPaused()
+                && minecraft.player != null
+                && minecraft.level != null
+                && minecraft.gameMode != null;
+    }
+
+    public boolean isInternalContinue() {
+        return internalContinue;
+    }
+
+    private void stopAutoLeft() {
+        shouldLeftClick = false;
+        lastDestroyPos = null;
+
+        if (minecraft.gameMode != null
+                && minecraft.player != null
+                && !minecraft.options.keyAttack.isDown()) {
+            ((MinecraftAccessor) minecraft).invokeContinueAttack(false);
+        }
+    }
+
+    private boolean isSameBlockBeingDestroyed() {
+        if (!(minecraft.hitResult instanceof BlockHitResult blockHit)) {
+            lastDestroyPos = null;
+            return false;
+        }
+
+        boolean sameTarget = minecraft.gameMode != null
+                && minecraft.gameMode.isDestroying()
+                && blockHit.getBlockPos().equals(lastDestroyPos);
+
+        if (!sameTarget) {
+            lastDestroyPos = blockHit.getBlockPos();
+        }
+
+        return sameTarget;
     }
 
     public HudTexts getHudTexts() {
@@ -240,10 +309,6 @@ public class ClickHandler {
         return minecraft.player != null ? minecraft.player.getAttackStrengthScale(0) : 0.0F;
     }
 
-    private IRayTrace getRayTrace() {
-        return new RayTrace(minecraft.hitResult);
-    }
-
     private void sendMessage(String message) {
         ChatComponent chat = VersionCompact.getChat(minecraft);
         if (chat != null) {
@@ -264,7 +329,7 @@ public class ClickHandler {
 
     private void disableAutoLeftByConflict() {
         if (shouldLeftClick) {
-            shouldLeftClick = false;
+            stopAutoLeft();
             sendMessage("Conflict: Disabled auto click left button.");
         }
     }
