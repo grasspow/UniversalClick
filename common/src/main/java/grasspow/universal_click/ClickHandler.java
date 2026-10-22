@@ -246,6 +246,7 @@ public class ClickHandler {
 
         if (minecraft.gameMode != null
                 && minecraft.player != null
+                && minecraft.level != null
                 && !minecraft.options.keyAttack.isDown()) {
             ((MinecraftAccessor) minecraft).invokeContinueAttack(false);
         }
