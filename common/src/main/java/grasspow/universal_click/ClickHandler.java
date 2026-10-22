@@ -88,6 +88,11 @@ public class ClickHandler {
     }
 
     public void onTick() {
+        if (minecraft.player == null || minecraft.level == null || minecraft.gameMode == null) {
+            reset();
+            return;
+        }
+
         if (!minecraft.isPaused()) {
             if (shouldLeftClick) {
                 if (leftCooldown == 0) {
@@ -103,7 +108,7 @@ public class ClickHandler {
             }
 
             if (shouldRightClick) {
-                if (isInGame() && !isInPauseMenu()) {
+                if (isScreenOpen() && !isInPauseMenu()) {
                     sendMessage("Auto right clicking has stopped because a GUI opened");
                     shouldRightClick = false;
                 } else if (rightCooldown == 0) {
@@ -114,14 +119,18 @@ public class ClickHandler {
                 }
             }
 
-            if (holdingRightButton && isInGame() && minecraft.rightClickDelay == 0 && !isPlayerHandBusy()) {
+            if (holdingRightButton && isScreenOpen() && minecraft.rightClickDelay == 0 && !isPlayerHandBusy()) {
                 ((MinecraftAccessor) minecraft).invokeStartUseItem();
             }
 
             if (holdRightWasPressed && !myKeyToggleHoldRight.isDown()) {
-                holdingRightButton = !holdingRightButton;
-                myKeyUse.setHeld(holdingRightButton);
                 holdRightWasPressed = false;
+                if (holdingRightButton) {
+                    stopHoldingRight();
+                } else {
+                    holdingRightButton = true;
+                    myKeyUse.setHeld(true);
+                }
             }
         }
     }
@@ -156,9 +165,21 @@ public class ClickHandler {
     }
 
     public void onInitGuiPre() {
-        if (holdingRightButton) {
+        if (holdingRightButton && minecraft.player != null && minecraft.level != null) {
             myKeyUse.setHeld(true);
         }
+    }
+
+    /**
+     * Clears all transient click state. Safe to call when no world is loaded.
+     */
+    public void reset() {
+        shouldLeftClick = false;
+        shouldSmartAttack = false;
+        shouldRightClick = false;
+        stopHoldingRight();
+        leftCooldown = 0;
+        rightCooldown = 0;
     }
 
     public void leftClick(boolean smart) {
@@ -203,7 +224,7 @@ public class ClickHandler {
         }
     }
 
-    private boolean isInGame() {
+    private boolean isScreenOpen() {
         return minecraft.screen != null;
     }
 
@@ -255,9 +276,15 @@ public class ClickHandler {
         }
     }
 
+    private void stopHoldingRight() {
+        holdingRightButton = false;
+        holdRightWasPressed = false;
+        myKeyUse.setHeld(false);
+    }
+
     private void disableHoldRightByConflict() {
         if (holdingRightButton) {
-            holdRightWasPressed = true;
+            stopHoldingRight();
             sendMessage("Conflict: Disabled holding right button.");
         }
     }
