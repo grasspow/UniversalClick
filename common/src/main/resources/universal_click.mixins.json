@@ -3,13 +3,14 @@
   "minVersion": "0.8",
   "package": "grasspow.universal_click.mixin",
   "compatibilityLevel": "JAVA_25",
+  "plugin": "grasspow.universal_click.mixin.UniversalClickMixinPlugin",
   "mixins": [],
   "client": [
     "MinecraftMixin"
   ],
   "server": [],
   "injectors": {
-    "defaultRequire": 1
+    "defaultRequire": 0
   },
   "overwrites": {
     "requireAnnotations": true
