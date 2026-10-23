@@ -2,6 +2,7 @@
   "key.universal_click.toggleright": "自动右击",
   "key.universal_click.toggleleft": "自动左击",
   "key.universal_click.togglesmartattack": "智能攻击",
+  "key.universal_click.toggleholdleft": "保持长按左键",
   "key.universal_click.toggleholdright": "保持长按右键",
   "key.universal_click.speed": "更改自动点击速度",
   "key.category.universal_click.key_categories": "通用点击",

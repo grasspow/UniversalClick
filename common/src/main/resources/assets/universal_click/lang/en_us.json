@@ -2,6 +2,7 @@
   "key.universal_click.toggleright": "Auto-Click Right Mouse Button",
   "key.universal_click.toggleleft": "Auto-Click Left Mouse Button",
   "key.universal_click.togglesmartattack": "Toggle Smart Attack",
+  "key.universal_click.toggleholdleft": "Hold Left Mouse Button",
   "key.universal_click.toggleholdright": "Hold Right Mouse Button",
   "key.universal_click.speed": "Change auto clicking speed",
   "key.category.universal_click.key_categories": "Universal Click",

@@ -21,19 +21,23 @@ public class ClickHandler {
     private final Minecraft minecraft;
     private final ClickConfig config;
 
+    private final IKeyBind myKeyAttack;
     private final IKeyBind myKeyUse;
     private final IKeyBind myKeyToggleRight;
     private final IKeyBind myKeyToggleLeft;
     private final IKeyBind myKeyToggleSmartAttack;
+    private final IKeyBind myKeyToggleHoldLeft;
     private final IKeyBind myKeyToggleHoldRight;
     private final IKeyBind myKeySpeed;
 
     public boolean shouldLeftClick = false;
     public boolean shouldSmartAttack = false;
     public boolean shouldRightClick = false;
+    public boolean holdingLeftButton = false;
     public boolean holdingRightButton = false;
     public int clickTickInterval = 1;
 
+    private boolean holdLeftWasPressed = false;
     private boolean holdRightWasPressed = false;
     private int leftCooldown = 0;
     private int rightCooldown = 0;
@@ -78,10 +82,12 @@ public class ClickHandler {
     public ClickHandler(Minecraft minecraft, ClickConfig config) {
         this.minecraft = minecraft;
         this.config = config;
+        this.myKeyAttack = new KeyBind(minecraft.options.keyAttack);
         this.myKeyUse = new KeyBind(minecraft.options.keyUse);
         this.myKeyToggleRight = new KeyBind(KEY_TOGGLE_RIGHT);
         this.myKeyToggleLeft = new KeyBind(KEY_TOGGLE_LEFT);
         this.myKeyToggleSmartAttack = new KeyBind(KEY_TOGGLE_SMART_ATTACK);
+        this.myKeyToggleHoldLeft = new KeyBind(KEY_TOGGLE_HOLD_LEFT);
         this.myKeyToggleHoldRight = new KeyBind(KEY_TOGGLE_HOLD_RIGHT);
         this.myKeySpeed = new KeyBind(KEY_SPEED);
     }
@@ -153,12 +159,29 @@ public class ClickHandler {
                     myKeyUse.setHeld(true);
                 }
             }
+
+            if (holdLeftWasPressed && !myKeyToggleHoldLeft.isDown()) {
+                holdLeftWasPressed = false;
+                if (holdingLeftButton) {
+                    stopHoldingLeft();
+                } else {
+                    holdingLeftButton = true;
+                    myKeyAttack.setHeld(true);
+                }
+            }
+
+            // Re-assert the simulated attack key. Screens call releaseAll()
+            // and other code may release it; holding left must survive that.
+            if (holdingLeftButton) {
+                myKeyAttack.setHeld(true);
+            }
         }
     }
 
     public void onKeyPressed() {
         if (myKeyToggleLeft.isDown()) {
             disableSmartAttackByConflict();
+            disableHoldLeftByConflict();
             if (shouldLeftClick) {
                 stopAutoLeft();
             } else {
@@ -168,11 +191,17 @@ public class ClickHandler {
         }
         if (myKeyToggleSmartAttack.isDown()) {
             disableAutoLeftByConflict();
+            disableHoldLeftByConflict();
             shouldSmartAttack = !shouldSmartAttack;
         }
         if (myKeyToggleRight.isDown()) {
             disableHoldRightByConflict();
             shouldRightClick = !shouldRightClick;
+        }
+        if (myKeyToggleHoldLeft.isDown()) {
+            disableAutoLeftByConflict();
+            disableSmartAttackByConflict();
+            holdLeftWasPressed = true;
         }
         if (myKeyToggleHoldRight.isDown()) {
             disableAutoRightByConflict();
@@ -191,7 +220,13 @@ public class ClickHandler {
     }
 
     public void onInitGuiPre() {
-        if (holdingRightButton && minecraft.player != null && minecraft.level != null) {
+        if (minecraft.player == null || minecraft.level == null) {
+            return;
+        }
+        if (holdingLeftButton) {
+            myKeyAttack.setHeld(true);
+        }
+        if (holdingRightButton) {
             myKeyUse.setHeld(true);
         }
     }
@@ -203,6 +238,7 @@ public class ClickHandler {
         stopAutoLeft();
         shouldSmartAttack = false;
         shouldRightClick = false;
+        stopHoldingLeft();
         stopHoldingRight();
         leftCooldown = 0;
         rightCooldown = 0;
@@ -281,6 +317,9 @@ public class ClickHandler {
         if (shouldSmartAttack) {
             textList.add("Auto Smart Attacking");
         }
+        if (holdingLeftButton) {
+            textList.add("Holding Left Button");
+        }
         if (holdingRightButton) {
             textList.add("Holding Right Button");
         }
@@ -342,10 +381,23 @@ public class ClickHandler {
         }
     }
 
+    private void stopHoldingLeft() {
+        holdingLeftButton = false;
+        holdLeftWasPressed = false;
+        myKeyAttack.setHeld(false);
+    }
+
     private void stopHoldingRight() {
         holdingRightButton = false;
         holdRightWasPressed = false;
         myKeyUse.setHeld(false);
+    }
+
+    private void disableHoldLeftByConflict() {
+        if (holdingLeftButton) {
+            stopHoldingLeft();
+            sendMessage("Conflict: Disabled holding left button.");
+        }
     }
 
     private void disableHoldRightByConflict() {

@@ -43,6 +43,9 @@ public class UniversalClickFabricClient implements ClientModInitializer {
                 while (KEY_TOGGLE_SMART_ATTACK.consumeClick()) {
                     clickHandler.onKeyPressed();
                 }
+                while (KEY_TOGGLE_HOLD_LEFT.consumeClick()) {
+                    clickHandler.onKeyPressed();
+                }
                 while (KEY_TOGGLE_HOLD_RIGHT.consumeClick()) {
                     clickHandler.onKeyPressed();
                 }
