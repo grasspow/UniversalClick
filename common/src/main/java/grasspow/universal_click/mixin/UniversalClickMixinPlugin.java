@@ -33,7 +33,7 @@ public final class UniversalClickMixinPlugin implements IMixinConfigPlugin {
             try {
                 Minecraft.class.getDeclaredMethod("continueAttack", boolean.class);
                 return true;
-            } catch (Exception e) {
+            } catch (ReflectiveOperationException | LinkageError e) {
                 UniversalClick.LOG.warn(
                         "[UniversalClick] Minecraft#continueAttack(boolean) not found; "
                                 + "auto-left mining support is disabled on this version"
