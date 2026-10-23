@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
  */
 public final class VersionCompat {
 
-    private static final String MC_VERSION = SharedConstants.getCurrentVersion().name();
+    private static String mcVersion;
     private static boolean initialized;
 
     private static Field screenField;
@@ -45,8 +45,9 @@ public final class VersionCompat {
             return;
         }
         initialized = true;
+        mcVersion = SharedConstants.getCurrentVersion().name();
 
-        UniversalClick.LOG.info("Initializing version compatibility, minecraft version: " + MC_VERSION);
+        UniversalClick.LOG.info("Initializing version compatibility, minecraft version: " + mcVersion);
 
         // 26.1 exposes Minecraft.screen. 26.2+ moved it to Gui#screen().
         try {
@@ -63,7 +64,7 @@ public final class VersionCompat {
             try {
                 guiGetChatMethod = Gui.class.getMethod("getChat");
             } catch (NoSuchMethodException ex) {
-                warn("Couldn't find a chat accessor for Minecraft " + MC_VERSION);
+                warn("Couldn't find a chat accessor for Minecraft " + mcVersion);
             }
         }
 
