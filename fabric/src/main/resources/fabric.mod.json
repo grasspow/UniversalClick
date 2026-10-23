@@ -15,7 +15,7 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "grasspow.universal_click.client.UniversalClickFabricClient"
+      "grasspow.universal_click.fabric.UniversalClickFabricClient"
     ]
   },
   "mixins": [

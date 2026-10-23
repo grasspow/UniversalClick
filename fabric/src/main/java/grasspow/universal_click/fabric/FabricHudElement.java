@@ -1,5 +1,6 @@
-package grasspow.universal_click;
+package grasspow.universal_click.fabric;
 
+import grasspow.universal_click.HudRenderer;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;

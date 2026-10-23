@@ -2,14 +2,18 @@ plugins {
     id 'base'
 }
 
-def fabricRemapJar = project(':fabric').tasks.named('jar')
+def commonJar = project(':common').tasks.named('jar')
+// Loom omits remapJar when the game already uses the official namespace.
+def fabricJarName = project(':fabric').tasks.findByName('remapJar') != null ? 'remapJar' : 'jar'
+def fabricJar = project(':fabric').tasks.named(fabricJarName)
 def neoForgeJar = project(':neoforge').tasks.named('jar')
 
 tasks.register('universalJar', Jar) {
     group = 'build'
-    description = 'Builds a universal Fabric + NeoForge mod jar.'
+    description = 'Builds a universal Fabric + NeoForge mod jar from one common code base.'
 
-    dependsOn fabricRemapJar
+    dependsOn commonJar
+    dependsOn fabricJar
     dependsOn neoForgeJar
 
     archiveBaseName.set(rootProject.mod_id)
@@ -20,48 +24,93 @@ tasks.register('universalJar', Jar) {
             rootProject.layout.buildDirectory.dir('libs')
     )
 
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    // A duplicate entry means common classes or resources were packaged twice.
+    duplicatesStrategy = DuplicatesStrategy.FAIL
 
-    // 先使用 Fabric remap 后的 JAR 作为基础。
+    // 1. Common code and resources, packaged exactly once.
     from({
-        zipTree(
-                fabricRemapJar.get()
-                        .archiveFile
-                        .get()
-                        .asFile
-        )
+        zipTree(commonJar.get().archiveFile.get().asFile)
     }) {
         exclude 'META-INF/MANIFEST.MF'
         exclude 'META-INF/*.SF'
         exclude 'META-INF/*.RSA'
         exclude 'META-INF/*.DSA'
+        exclude 'pack.mcmeta'
+        exclude 'fabric.mod.json'
+        exclude 'META-INF/neoforge.mods.toml'
     }
 
-    // 再加入 NeoForge。
+    // 2. Fabric adapter classes and Fabric metadata only.
     from({
-        zipTree(
-                neoForgeJar.get()
-                        .archiveFile
-                        .get()
-                        .asFile
-        )
+        zipTree(fabricJar.get().archiveFile.get().asFile)
     }) {
-        // Fabric 的 metadata 已经存在于第一个 JAR，
-        // NeoForge 这里只排除不需要的签名/manifest。
-        exclude 'META-INF/MANIFEST.MF'
-        exclude 'META-INF/*.SF'
-        exclude 'META-INF/*.RSA'
-        exclude 'META-INF/*.DSA'
+        include 'grasspow/universal_click/fabric/**'
+        include 'fabric.mod.json'
+    }
+
+    // 3. NeoForge adapter classes and NeoForge metadata only.
+    from({
+        zipTree(neoForgeJar.get().archiveFile.get().asFile)
+    }) {
+        include 'grasspow/universal_click/neoforge/**'
+        include 'META-INF/neoforge.mods.toml'
     }
 
     manifest {
         attributes(
                 'Implementation-Title': rootProject.mod_id,
-                'Implementation-Version': rootProject.version
+                'Implementation-Version': rootProject.version,
+                'Built-On-Minecraft': rootProject.minecraft_version,
+                'Fabric-Mapping-Namespace': 'official'
         )
     }
 }
 
-tasks.named('build') {
+tasks.register('verifyUniversalJar') {
+    group = 'verification'
+    description = 'Verifies the contents of the merged universal jar.'
     dependsOn tasks.named('universalJar')
+
+    doLast {
+        def jar = tasks.named('universalJar').get().archiveFile.get().asFile
+        def required = [
+                'fabric.mod.json',
+                'META-INF/neoforge.mods.toml',
+                'universal_click.mixins.json',
+                'grasspow/universal_click/mixin/MinecraftMixin.class',
+                'grasspow/universal_click/fabric/UniversalClickFabricClient.class',
+                'grasspow/universal_click/neoforge/UniversalClickNeoForgeClient.class',
+                'LICENSE_UniversalClick',
+                'NOTICE_UniversalClick'
+        ]
+        def forbidden = [
+                'pack.mcmeta',
+                'META-INF/accesstransformer.cfg',
+                'universal_click.accesswidener'
+        ]
+
+        new java.util.zip.ZipFile(jar).withCloseable { zip ->
+            def names = zip.entries().collect { it.name }
+            def duplicates = names.groupBy { it }.findAll { name, entries -> entries.size() > 1 }.keySet()
+            if (!duplicates.isEmpty()) {
+                throw new GradleException("Duplicate entries in ${jar.name}: ${duplicates}")
+            }
+
+            required.each { name ->
+                if (names.count(name) != 1) {
+                    throw new GradleException("Expected exactly one ${name} in ${jar.name}")
+                }
+            }
+
+            forbidden.each { name ->
+                if (names.contains(name)) {
+                    throw new GradleException("Unexpected ${name} in ${jar.name}")
+                }
+            }
+        }
+    }
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('verifyUniversalJar')
 }

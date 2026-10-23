@@ -1,7 +1,6 @@
-package grasspow.universal_click.client;
+package grasspow.universal_click.neoforge;
 
 import grasspow.universal_click.*;
-import grasspow.universal_click.config.NeoForgeConfig;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;

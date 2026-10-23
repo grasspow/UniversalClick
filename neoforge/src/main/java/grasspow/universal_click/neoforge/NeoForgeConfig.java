@@ -1,4 +1,4 @@
-package grasspow.universal_click.config;
+package grasspow.universal_click.neoforge;
 
 import grasspow.universal_click.ClickConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;

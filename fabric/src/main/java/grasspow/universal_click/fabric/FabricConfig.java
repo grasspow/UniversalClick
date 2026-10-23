@@ -1,4 +1,4 @@
-package grasspow.universal_click.config;
+package grasspow.universal_click.fabric;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

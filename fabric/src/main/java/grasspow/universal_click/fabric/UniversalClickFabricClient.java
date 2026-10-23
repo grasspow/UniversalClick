@@ -1,7 +1,6 @@
-package grasspow.universal_click.client;
+package grasspow.universal_click.fabric;
 
 import grasspow.universal_click.*;
-import grasspow.universal_click.config.FabricConfig;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
