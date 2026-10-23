@@ -30,7 +30,7 @@ public class UniversalClickNeoForgeClient {
         bus.addListener(this::onConfigLoad);
 
         NeoForge.EVENT_BUS.register(this);
-        VersionCompact.init();
+        VersionCompat.init();
     }
 
     private void onConfigLoad(ModConfigEvent event) {

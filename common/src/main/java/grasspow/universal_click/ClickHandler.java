@@ -1,7 +1,6 @@
 package grasspow.universal_click;
 
 import grasspow.universal_click.impl.KeyBind;
-import grasspow.universal_click.mixin.MinecraftAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -100,7 +99,7 @@ public class ClickHandler {
                 // Vanilla resets missTime in continueAttack(false), but that
                 // path is not called while a screen is open. Keep auto-left
                 // usable behind an open screen, as it was before.
-                ((MinecraftAccessor) minecraft).setMissTime(0);
+                VersionCompat.setMissTime(minecraft, 0);
             }
 
             if (shouldLeftClick) {
@@ -121,7 +120,7 @@ public class ClickHandler {
             if (shouldLeftClick && !startedLeftThisTick) {
                 internalContinue = true;
                 try {
-                    ((MinecraftAccessor) minecraft).invokeContinueAttack(true);
+                    VersionCompat.continueAttack(minecraft, true);
                 } finally {
                     internalContinue = false;
                 }
@@ -132,7 +131,7 @@ public class ClickHandler {
                     sendMessage("Auto right clicking has stopped because a GUI opened");
                     shouldRightClick = false;
                 } else if (rightCooldown == 0) {
-                    ((MinecraftAccessor) minecraft).invokeStartUseItem();
+                    VersionCompat.startUseItem(minecraft);
                     rightCooldown = clickTickInterval - 1;
                 } else {
                     rightCooldown--;
@@ -140,9 +139,9 @@ public class ClickHandler {
             }
 
             if (holdingRightButton && isScreenOpen()
-                    && ((MinecraftAccessor) minecraft).getRightClickDelay() == 0
+                    && VersionCompat.getRightClickDelay(minecraft) == 0
                     && !isPlayerHandBusy()) {
-                ((MinecraftAccessor) minecraft).invokeStartUseItem();
+                VersionCompat.startUseItem(minecraft);
             }
 
             if (holdRightWasPressed && !myKeyToggleHoldRight.isDown()) {
@@ -222,8 +221,7 @@ public class ClickHandler {
             return false;
         }
 
-        ((MinecraftAccessor) minecraft).invokeStartAttack();
-        return true;
+        return VersionCompat.startAttack(minecraft);
     }
 
     /**
@@ -250,7 +248,7 @@ public class ClickHandler {
                 && minecraft.player != null
                 && minecraft.level != null
                 && !minecraft.options.keyAttack.isDown()) {
-            ((MinecraftAccessor) minecraft).invokeContinueAttack(false);
+            VersionCompat.continueAttack(minecraft, false);
         }
     }
 
@@ -297,11 +295,11 @@ public class ClickHandler {
     }
 
     private boolean isScreenOpen() {
-        return VersionCompact.getScreen(minecraft) != null;
+        return VersionCompat.getScreen(minecraft) != null;
     }
 
     private boolean isInPauseMenu() {
-        return VersionCompact.getScreen(minecraft) instanceof PauseScreen;
+        return VersionCompat.getScreen(minecraft) instanceof PauseScreen;
     }
 
     private boolean isPlayerHandBusy() {
@@ -313,14 +311,14 @@ public class ClickHandler {
     }
 
     private void sendMessage(String message) {
-        ChatComponent chat = VersionCompact.getChat(minecraft);
+        ChatComponent chat = VersionCompat.getChat(minecraft);
         if (chat != null) {
             chat.addClientSystemMessage(Component.literal(message).withStyle(ChatFormatting.RED));
         }
     }
 
     private void sendMessageWithId(String message) {
-        ChatComponent chat = VersionCompact.getChat(minecraft);
+        ChatComponent chat = VersionCompat.getChat(minecraft);
         if (chat != null) {
             chat.addPlayerMessage(
                     Component.literal(message),
