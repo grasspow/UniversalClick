@@ -11,10 +11,9 @@ import java.lang.reflect.Method;
 
 public class VersionCompact {
 
-    // 26.2, 26.3
-    public static Class<?> hudClazz;
     public static Field hudField;
     public static Method getChatMethod;
+    private static Method guiGetChatMethod;
     private static Field screenField;
     private static Method screenMethod;
     static final String MC_VERSION = SharedConstants.getCurrentVersion().name();
@@ -33,18 +32,16 @@ public class VersionCompact {
             }
         }
 
-        if (MC_VERSION.equals("26.2") || MC_VERSION.equals("26.3")) {
+        // 26.2+ exposes chat through Gui.hud#getChat; older versions expose
+        // Gui#getChat directly. Detect by capability instead of version name.
+        try {
+            hudField = Gui.class.getField("hud");
+            getChatMethod = hudField.getType().getMethod("getChat");
+        } catch (NoSuchFieldException | NoSuchMethodException e) {
             try {
-                hudClazz = Class.forName("net.minecraft.client.gui.Hud");
-                hudField = Gui.class.getField("hud");
-                getChatMethod = hudClazz.getMethod("getChat");
-            } catch (ClassNotFoundException e) {
-                UniversalClick.LOG.error("Couldn't find class for Minecraft 26.2: \"net.minecraft.client.gui.Hud\"");
-                UniversalClick.LOG.error(e.getMessage());
-            } catch (NoSuchFieldException e) {
-                UniversalClick.LOG.error("Couldn't find Field for Minecraft 26.2: \"net.minecraft.client.gui.Gui.hud\"");
-            } catch (NoSuchMethodException e) {
-                UniversalClick.LOG.error("Couldn't find Method for Minecraft 26.2: \"net.minecraft.client.gui.Hud#getChat\"");
+                guiGetChatMethod = Gui.class.getMethod("getChat");
+            } catch (NoSuchMethodException ex) {
+                UniversalClick.LOG.error("Couldn't find a chat accessor for Minecraft " + MC_VERSION);
             }
         }
     }
@@ -68,21 +65,21 @@ public class VersionCompact {
     }
 
     public static ChatComponent getChat(Minecraft mc) {
-        switch (MC_VERSION) {
-            case "26.2", "26.3" -> {
-                if (hudField == null) return null;
-                try {
-                    Object o = hudField.get(mc.gui);
-                    if (o != null) {
-                        return (ChatComponent) getChatMethod.invoke(o);
-                    }
-                } catch (Exception e) {
-                    UniversalClick.LOG.error("Error while getting ChatComponent from Minecraft 26.2: {}", e.getMessage());
+        if (mc.gui == null) {
+            return null;
+        }
+
+        try {
+            if (hudField != null && getChatMethod != null) {
+                Object hud = hudField.get(mc.gui);
+                if (hud != null) {
+                    return (ChatComponent) getChatMethod.invoke(hud);
                 }
+            } else if (guiGetChatMethod != null) {
+                return (ChatComponent) guiGetChatMethod.invoke(mc.gui);
             }
-            default -> {
-                return mc.gui.getChat();
-            }
+        } catch (Exception e) {
+            UniversalClick.LOG.error("Error while getting ChatComponent: {}", e.getMessage());
         }
         return null;
     }
