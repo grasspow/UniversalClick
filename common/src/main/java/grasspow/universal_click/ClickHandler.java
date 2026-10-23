@@ -139,7 +139,9 @@ public class ClickHandler {
                 }
             }
 
-            if (holdingRightButton && isScreenOpen() && minecraft.rightClickDelay == 0 && !isPlayerHandBusy()) {
+            if (holdingRightButton && isScreenOpen()
+                    && ((MinecraftAccessor) minecraft).getRightClickDelay() == 0
+                    && !isPlayerHandBusy()) {
                 ((MinecraftAccessor) minecraft).invokeStartUseItem();
             }
 
