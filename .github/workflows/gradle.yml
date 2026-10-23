@@ -39,6 +39,6 @@ jobs:
       - name: Upload merged jar
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: neoforge
+          name: merged_jar
           path: build/libs/universal_click*.jar
           archive: false
