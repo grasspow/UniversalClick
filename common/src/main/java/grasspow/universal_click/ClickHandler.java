@@ -96,7 +96,7 @@ public class ClickHandler {
         if (!minecraft.isPaused()) {
             boolean startedLeftThisTick = false;
 
-            if (shouldLeftClick && minecraft.screen != null) {
+            if (shouldLeftClick && isScreenOpen()) {
                 // Vanilla resets missTime in continueAttack(false), but that
                 // path is not called while a screen is open. Keep auto-left
                 // usable behind an open screen, as it was before.
@@ -295,11 +295,11 @@ public class ClickHandler {
     }
 
     private boolean isScreenOpen() {
-        return minecraft.screen != null;
+        return VersionCompact.getScreen(minecraft) != null;
     }
 
     private boolean isInPauseMenu() {
-        return minecraft.screen instanceof PauseScreen;
+        return VersionCompact.getScreen(minecraft) instanceof PauseScreen;
     }
 
     private boolean isPlayerHandBusy() {

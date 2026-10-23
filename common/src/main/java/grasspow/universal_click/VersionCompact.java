@@ -4,6 +4,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.gui.screens.Screen;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -14,10 +15,24 @@ public class VersionCompact {
     public static Class<?> hudClazz;
     public static Field hudField;
     public static Method getChatMethod;
+    private static Field screenField;
+    private static Method screenMethod;
     static final String MC_VERSION = SharedConstants.getCurrentVersion().name();
 
     public static void init() {
         UniversalClick.LOG.info("Initializing version compact, minecraft version: " + MC_VERSION);
+
+        // 26.1 keeps the screen field on Minecraft; 26.2+ moved it to Gui.
+        try {
+            screenMethod = Gui.class.getMethod("screen");
+        } catch (NoSuchMethodException e) {
+            try {
+                screenField = Minecraft.class.getField("screen");
+            } catch (NoSuchFieldException ex) {
+                UniversalClick.LOG.error("Couldn't find Minecraft screen field or Gui#screen method");
+            }
+        }
+
         if (MC_VERSION.equals("26.2") || MC_VERSION.equals("26.3")) {
             try {
                 hudClazz = Class.forName("net.minecraft.client.gui.Hud");
@@ -32,6 +47,24 @@ public class VersionCompact {
                 UniversalClick.LOG.error("Couldn't find Method for Minecraft 26.2: \"net.minecraft.client.gui.Hud#getChat\"");
             }
         }
+    }
+
+    public static Screen getScreen(Minecraft mc) {
+        if (mc.gui == null) {
+            return null;
+        }
+
+        try {
+            if (screenMethod != null) {
+                return (Screen) screenMethod.invoke(mc.gui);
+            }
+            if (screenField != null) {
+                return (Screen) screenField.get(mc);
+            }
+        } catch (Exception e) {
+            UniversalClick.LOG.error("Error while getting current screen: {}", e.getMessage());
+        }
+        return null;
     }
 
     public static ChatComponent getChat(Minecraft mc) {
