@@ -11,9 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.world.phys.BlockHitResult;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static grasspow.universal_click.KeyMappings.*;
@@ -341,32 +339,23 @@ public class ClickHandler {
         return sameTarget;
     }
 
-    public HudTexts getHudTexts() {
-        List<String> textList = new ArrayList<>();
-
-        if (shouldLeftClick) {
-            textList.add("Auto Left Clicking");
-        }
-        if (shouldRightClick) {
-            textList.add("Auto Right Clicking");
-        }
-        if (shouldSmartAttack) {
-            textList.add("Auto Smart Attacking");
-        }
-        if (holdingLeftButton) {
-            textList.add("Holding Left Button");
-        }
-        if (holdingRightButton) {
-            textList.add("Holding Right Button");
-        }
-
-        return new HudTexts(textList);
+    public HudState getHudState() {
+        return new HudState(
+                shouldLeftClick,
+                shouldRightClick,
+                shouldSmartAttack,
+                holdingLeftButton,
+                holdingRightButton
+        );
     }
 
-    public record HudTexts(List<String> texts) {
-        public boolean isEmpty() {
-            return texts.isEmpty();
-        }
+    public record HudState(
+            boolean autoLeft,
+            boolean autoRight,
+            boolean smartAttack,
+            boolean holdLeft,
+            boolean holdRight
+    ) {
     }
 
     private boolean isScreenOpen() {

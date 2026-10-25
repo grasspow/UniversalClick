@@ -7,6 +7,12 @@
   "key.universal_click.speed": "更改自动点击速度",
   "key.category.universal_click.key_categories": "通用点击",
 
+  "hud.universal_click.auto_left": "自动左击",
+  "hud.universal_click.auto_right": "自动右击",
+  "hud.universal_click.smart_attack": "智能攻击",
+  "hud.universal_click.hold_left": "保持长按左键",
+  "hud.universal_click.hold_right": "保持长按右键",
+
   "universal_click.configuration.title": "universal_click",
   "universal_click.configuration.section.universal.click.client.toml": "universal_click",
   "universal_click.configuration.section.universal.click.client.toml.title": "通用点击 配置选项",

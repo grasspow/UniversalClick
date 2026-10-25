@@ -82,7 +82,7 @@ public class UniversalClickNeoForgeClient {
     }
 
     @SubscribeEvent
-    private void onRenderGuiLayer(RenderGuiLayerEvent.Post event) {
+    private void onRenderGui(RenderGuiEvent.Post event) {
         if (hudRenderer == null) {
             Minecraft mc = Minecraft.getInstance();
             hudRenderer = new HudRenderer(mc);

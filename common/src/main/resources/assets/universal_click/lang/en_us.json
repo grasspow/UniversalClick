@@ -7,6 +7,12 @@
   "key.universal_click.speed": "Change auto clicking speed",
   "key.category.universal_click.key_categories": "Universal Click",
 
+  "hud.universal_click.auto_left": "Auto Left Clicking",
+  "hud.universal_click.auto_right": "Auto Right Clicking",
+  "hud.universal_click.smart_attack": "Auto Smart Attacking",
+  "hud.universal_click.hold_left": "Holding Left Button",
+  "hud.universal_click.hold_right": "Holding Right Button",
+
   "universal_click.configuration.title": "universal_click",
   "universal_click.configuration.section.universal.click.client.toml": "universal_click",
   "universal_click.configuration.section.universal.click.client.toml.title": "Universal Click Configs",

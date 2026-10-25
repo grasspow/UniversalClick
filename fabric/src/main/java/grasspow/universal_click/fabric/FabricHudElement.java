@@ -8,9 +8,13 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
 
 public class FabricHudElement implements HudElement {
 
+    private HudRenderer hudRenderer;
+
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
-        HudRenderer hudRenderer = new HudRenderer(Minecraft.getInstance());
+        if (hudRenderer == null) {
+            hudRenderer = new HudRenderer(Minecraft.getInstance());
+        }
         hudRenderer.render(graphics);
     }
 
