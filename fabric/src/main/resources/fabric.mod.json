@@ -32,14 +32,6 @@
   },
   "suggests": {
     "modmenu": "*"
-  },
-  "custom": {
-    "modmenu": {
-      "badges": [
-        "client"
-      ],
-      "update_checker": true
-    }
   }
 }
   

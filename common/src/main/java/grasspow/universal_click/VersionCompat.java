@@ -25,6 +25,8 @@ public final class VersionCompat {
 
     private static Field screenField;
     private static Method screenMethod;
+    private static Method guiSetScreenMethod;
+    private static Method minecraftSetScreenMethod;
 
     private static Field hudField;
     private static Method getChatMethod;
@@ -54,6 +56,14 @@ public final class VersionCompat {
             screenMethod = Gui.class.getMethod("screen");
         } catch (NoSuchMethodException e) {
             screenField = findField(Minecraft.class, "screen");
+        }
+
+        // 26.1 sets the screen through Minecraft#setScreen; 26.2+ moved it
+        // to Gui#setScreen, and 26.3 removed Minecraft#setScreen entirely.
+        try {
+            guiSetScreenMethod = Gui.class.getMethod("setScreen", Screen.class);
+        } catch (NoSuchMethodException e) {
+            minecraftSetScreenMethod = findMethod(Minecraft.class, "setScreen", Screen.class);
         }
 
         // 26.2+ exposes chat through Gui.hud#getChat; 26.1 uses Gui#getChat.
@@ -92,6 +102,22 @@ public final class VersionCompat {
             warn("Error while getting current screen: " + e.getMessage());
         }
         return null;
+    }
+
+    public static boolean setScreen(Minecraft mc, Screen screen) {
+        try {
+            if (guiSetScreenMethod != null && mc.gui != null) {
+                guiSetScreenMethod.invoke(mc.gui, screen);
+                return true;
+            }
+            if (minecraftSetScreenMethod != null) {
+                minecraftSetScreenMethod.invoke(mc, screen);
+                return true;
+            }
+        } catch (Exception e) {
+            warn("Error while setting screen: " + e.getMessage());
+        }
+        return false;
     }
 
     public static ChatComponent getChat(Minecraft mc) {

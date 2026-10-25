@@ -2,6 +2,7 @@ package grasspow.universal_click.fabric;
 
 import grasspow.universal_click.ClickHandler;
 import grasspow.universal_click.ClickHandlerAccess;
+import grasspow.universal_click.VersionCompat;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -101,11 +102,11 @@ public final class UniversalClickConfigScreen extends Screen {
         if (handler != null) {
             handler.onConfigChanged();
         }
-        minecraft.setScreen(parent);
+        VersionCompat.setScreen(minecraft, parent);
     }
 
     @Override
     public void onClose() {
-        minecraft.setScreen(parent);
+        VersionCompat.setScreen(minecraft, parent);
     }
 }
