@@ -22,8 +22,8 @@
   "message.universal_click.speed_changed": "新的自动点击间隔：每 %s tick",
 
   "universal_click.configuration.title": "通用点击",
-  "universal_click.configuration.section.universal_click.client.toml": "通用点击",
-  "universal_click.configuration.section.universal_click.client.toml.title": "通用点击 配置选项",
+  "universal_click.configuration.section.universal.click.client.toml": "通用点击",
+  "universal_click.configuration.section.universal.click.client.toml.title": "通用点击 配置选项",
   "universal_click.configuration.ticksStep": "操作间隔",
   "universal_click.configuration.ticksStep.tooltip": "进行点击等操作时的间隔tick数",
   "universal_click.configuration.maxTicksBetweenClicks": "最大间隔",
