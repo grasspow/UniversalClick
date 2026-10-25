@@ -144,7 +144,7 @@ public class ClickHandler {
 
             if (shouldRightClick) {
                 if (isScreenOpen() && !isInPauseMenu()) {
-                    sendMessage("Auto right clicking has stopped because a GUI opened");
+                    sendMessage("message.universal_click.auto_right_stopped_gui");
                     shouldRightClick = false;
                 } else if (rightCooldown == 0) {
                     VersionCompat.startUseItem(minecraft);
@@ -254,8 +254,7 @@ public class ClickHandler {
 
     private void cycleSpeed() {
         clickTickInterval = ClickConfigValues.nextInterval(clickTickInterval, config);
-        String plural = clickTickInterval == 1 ? "" : "s";
-        sendMessageWithId("New auto click interval: every " + clickTickInterval + " tick" + plural);
+        sendMessageWithId(Component.translatable("message.universal_click.speed_changed", clickTickInterval));
     }
 
     public void onInitGuiPre() {
@@ -379,18 +378,18 @@ public class ClickHandler {
         return minecraft.player != null ? minecraft.player.getAttackStrengthScale(0) : 0.0F;
     }
 
-    private void sendMessage(String message) {
+    private void sendMessage(String key, Object... args) {
         ChatComponent chat = VersionCompat.getChat(minecraft);
         if (chat != null) {
-            chat.addClientSystemMessage(Component.literal(message).withStyle(ChatFormatting.RED));
+            chat.addClientSystemMessage(Component.translatable(key, args).withStyle(ChatFormatting.RED));
         }
     }
 
-    private void sendMessageWithId(String message) {
+    private void sendMessageWithId(Component message) {
         ChatComponent chat = VersionCompat.getChat(minecraft);
         if (chat != null) {
             chat.addPlayerMessage(
-                    Component.literal(message),
+                    message,
                     new MessageSignature(SIGNATURE_BYTES),
                     GuiMessageTag.system()
             );
@@ -400,14 +399,14 @@ public class ClickHandler {
     private void disableAutoLeftByConflict() {
         if (shouldLeftClick) {
             stopAutoLeft();
-            sendMessage("Conflict: Disabled auto click left button.");
+            sendMessage("message.universal_click.conflict.auto_left_disabled");
         }
     }
 
     private void disableSmartAttackByConflict() {
         if (shouldSmartAttack) {
             shouldSmartAttack = false;
-            sendMessage("Conflict: Disabled auto smart attack.");
+            sendMessage("message.universal_click.conflict.smart_attack_disabled");
         }
     }
 
@@ -426,21 +425,21 @@ public class ClickHandler {
     private void disableHoldLeftByConflict() {
         if (holdingLeftButton) {
             stopHoldingLeft();
-            sendMessage("Conflict: Disabled holding left button.");
+            sendMessage("message.universal_click.conflict.hold_left_disabled");
         }
     }
 
     private void disableHoldRightByConflict() {
         if (holdingRightButton) {
             stopHoldingRight();
-            sendMessage("Conflict: Disabled holding right button.");
+            sendMessage("message.universal_click.conflict.hold_right_disabled");
         }
     }
 
     private void disableAutoRightByConflict() {
         if (shouldRightClick) {
             shouldRightClick = false;
-            sendMessage("Conflict: Disabled auto clicking right button.");
+            sendMessage("message.universal_click.conflict.auto_right_disabled");
         }
     }
 }
