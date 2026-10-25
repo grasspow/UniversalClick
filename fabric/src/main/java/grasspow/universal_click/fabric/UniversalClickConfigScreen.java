@@ -11,8 +11,8 @@ import net.minecraft.network.chat.Component;
 
 public final class UniversalClickConfigScreen extends Screen {
 
-    private static final int LABEL_COLOR = 0xFFFFFF;
-    private static final int ERROR_COLOR = 0xFF5555;
+    private static final int LABEL_COLOR = 0xFFFFFFFF;
+    private static final int ERROR_COLOR = 0xFFFF5555;
 
     private final Screen parent;
     private final FabricConfig config;
