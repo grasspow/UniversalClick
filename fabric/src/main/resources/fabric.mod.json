@@ -36,7 +36,7 @@
   "custom": {
     "modmenu": {
       "badges": [
-        "Client"
+        "client"
       ],
       "update_checker": true
     }
