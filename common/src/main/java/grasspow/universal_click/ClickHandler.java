@@ -91,6 +91,15 @@ public class ClickHandler {
         this.myKeyToggleHoldLeft = new KeyBind(KEY_TOGGLE_HOLD_LEFT);
         this.myKeyToggleHoldRight = new KeyBind(KEY_TOGGLE_HOLD_RIGHT);
         this.myKeySpeed = new KeyBind(KEY_SPEED);
+        this.clickTickInterval = ClickConfigValues.normalizeInterval(clickTickInterval, config);
+    }
+
+    public ClickConfig getConfig() {
+        return config;
+    }
+
+    public void onConfigChanged() {
+        clickTickInterval = ClickConfigValues.normalizeInterval(clickTickInterval, config);
     }
 
     public void onTick() {
@@ -244,12 +253,8 @@ public class ClickHandler {
     }
 
     private void cycleSpeed() {
-        String plural = "s";
-        clickTickInterval += config.getTickStep();
-        if (clickTickInterval > config.getMaxTicks()) {
-            plural = "";
-            clickTickInterval = config.getMinTicks();
-        }
+        clickTickInterval = ClickConfigValues.nextInterval(clickTickInterval, config);
+        String plural = clickTickInterval == 1 ? "" : "s";
         sendMessageWithId("New auto click interval: every " + clickTickInterval + " tick" + plural);
     }
 

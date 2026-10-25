@@ -33,6 +33,9 @@ public class UniversalClickNeoForgeClient {
     }
 
     private void onConfigLoad(ModConfigEvent event) {
+        if (clickHandler != null) {
+            clickHandler.onConfigChanged();
+        }
     }
 
     public void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {

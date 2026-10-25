@@ -21,5 +21,8 @@
   "universal_click.configuration.maxTicksBetweenClicks":"Max ticks between clicks",
   "universal_click.configuration.maxTicksBetweenClicks.tooltip":"The maximal auto click interval possible before looping back to the minimum",
   "universal_click.configuration.minTicksBetweenClicks":"Min ticks between clicks",
-  "universal_click.configuration.minTicksBetweenClicks.tooltip":"The minimal auto click interval"
+  "universal_click.configuration.minTicksBetweenClicks.tooltip":"The minimal auto click interval",
+
+  "config.universal_click.invalid_number": "The interval values must be valid numbers",
+  "config.universal_click.invalid_range": "Values must be at least 1 and min must not exceed max"
 }

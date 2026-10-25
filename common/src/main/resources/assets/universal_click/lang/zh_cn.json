@@ -21,5 +21,8 @@
   "universal_click.configuration.maxTicksBetweenClicks": "最大间隔",
   "universal_click.configuration.maxTicksBetweenClicks.tooltip": "循环切换自动点击间隔时可切换至的最大tick,默认为10",
   "universal_click.configuration.minTicksBetweenClicks": "最小间隔",
-  "universal_click.configuration.minTicksBetweenClicks.tooltip": "循环切换自动点击间隔时可切换至的最小tick,默认为1"
+  "universal_click.configuration.minTicksBetweenClicks.tooltip": "循环切换自动点击间隔时可切换至的最小tick,默认为1",
+
+  "config.universal_click.invalid_number": "间隔值必须是有效数字",
+  "config.universal_click.invalid_range": "数值必须至少为 1，且最小间隔不能大于最大间隔"
 }
