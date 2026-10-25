@@ -20,7 +20,9 @@ dependencies {
     implementation("net.fabricmc.fabric-api:fabric-api:${fabric_version}")
     compileOnly "org.jetbrains:annotations:26.1.0"
 
-    // mod menu
+    // Optional ModMenu integration. It is not declared as a required dependency
+    // in fabric.mod.json and is never bundled into the universal jar.
+    compileOnly("maven.modrinth:mOgUt4GM:3rsoV1bk")
     localRuntime("maven.modrinth:mOgUt4GM:3rsoV1bk")
 }
 

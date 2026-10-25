@@ -16,6 +16,9 @@
   "entrypoints": {
     "client": [
       "grasspow.universal_click.fabric.UniversalClickFabricClient"
+    ],
+    "modmenu": [
+      "grasspow.universal_click.fabric.UniversalClickModMenu"
     ]
   },
   "mixins": [
@@ -28,7 +31,7 @@
     "java": ">=${java_version}"
   },
   "suggests": {
-    "another-mod": "*"
+    "modmenu": "*"
   },
   "custom": {
     "modmenu": {
