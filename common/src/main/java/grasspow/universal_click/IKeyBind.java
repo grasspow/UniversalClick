@@ -9,4 +9,6 @@ public interface IKeyBind {
 
     boolean isDown();
 
+    boolean consumeClick();
+
 }

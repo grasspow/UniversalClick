@@ -11,8 +11,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 
-import static grasspow.universal_click.KeyMappings.*;
-
 public class UniversalClickFabricClient implements ClientModInitializer {
 
 
@@ -33,24 +31,7 @@ public class UniversalClickFabricClient implements ClientModInitializer {
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             lazyInit(client);
             if (clickHandler != null) {
-                while (KEY_TOGGLE_RIGHT.consumeClick()) {
-                    clickHandler.onKeyPressed();
-                }
-                while (KEY_TOGGLE_LEFT.consumeClick()) {
-                    clickHandler.onKeyPressed();
-                }
-                while (KEY_TOGGLE_SMART_ATTACK.consumeClick()) {
-                    clickHandler.onKeyPressed();
-                }
-                while (KEY_TOGGLE_HOLD_LEFT.consumeClick()) {
-                    clickHandler.onKeyPressed();
-                }
-                while (KEY_TOGGLE_HOLD_RIGHT.consumeClick()) {
-                    clickHandler.onKeyPressed();
-                }
-                while (KEY_SPEED.consumeClick()) {
-                    clickHandler.onKeyPressed();
-                }
+                clickHandler.pollKeyBindings();
             }
         });
 

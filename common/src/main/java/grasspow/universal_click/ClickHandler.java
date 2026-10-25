@@ -12,7 +12,9 @@ import net.minecraft.network.chat.MessageSignature;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static grasspow.universal_click.KeyMappings.*;
 
@@ -37,6 +39,7 @@ public class ClickHandler {
     public boolean holdingRightButton = false;
     public int clickTickInterval = 1;
 
+    private final Set<IKeyBind> heldKeys = new HashSet<>();
     private boolean holdLeftWasPressed = false;
     private boolean holdRightWasPressed = false;
     private int leftCooldown = 0;
@@ -178,45 +181,78 @@ public class ClickHandler {
         }
     }
 
-    public void onKeyPressed() {
-        if (myKeyToggleLeft.isDown()) {
-            disableSmartAttackByConflict();
-            disableHoldLeftByConflict();
-            if (shouldLeftClick) {
-                stopAutoLeft();
-            } else {
-                lastDestroyPos = null;
-                shouldLeftClick = true;
-            }
-        }
-        if (myKeyToggleSmartAttack.isDown()) {
-            disableAutoLeftByConflict();
-            disableHoldLeftByConflict();
-            shouldSmartAttack = !shouldSmartAttack;
-        }
-        if (myKeyToggleRight.isDown()) {
-            disableHoldRightByConflict();
-            shouldRightClick = !shouldRightClick;
-        }
-        if (myKeyToggleHoldLeft.isDown()) {
-            disableAutoLeftByConflict();
-            disableSmartAttackByConflict();
-            holdLeftWasPressed = true;
-        }
-        if (myKeyToggleHoldRight.isDown()) {
-            disableAutoRightByConflict();
-            holdRightWasPressed = true;
+    public void pollKeyBindings() {
+        poll(myKeyToggleLeft, this::toggleAutoLeft);
+        poll(myKeyToggleSmartAttack, this::toggleSmartAttack);
+        poll(myKeyToggleRight, this::toggleAutoRight);
+        poll(myKeyToggleHoldLeft, this::toggleHoldLeft);
+        poll(myKeyToggleHoldRight, this::toggleHoldRight);
+        poll(myKeySpeed, this::cycleSpeed);
+    }
+
+    private void poll(IKeyBind keyBind, Runnable action) {
+        boolean clicked = false;
+        while (keyBind.consumeClick()) {
+            clicked = true;
         }
 
-        if (myKeySpeed.isDown()) {
-            String plural = "s";
-            clickTickInterval += config.getTickStep();
-            if (clickTickInterval > config.getMaxTicks()) {
-                plural = "";
-                clickTickInterval = config.getMinTicks();
+        boolean down = keyBind.isDown();
+        if (clicked && down) {
+            // Held keys generate repeat clicks; only act on the initial press.
+            if (heldKeys.add(keyBind)) {
+                action.run();
             }
-            sendMessageWithId("New auto click interval: every " + clickTickInterval + " tick" + plural);
+        } else if (clicked) {
+            // Press and release happened between two client ticks.
+            action.run();
         }
+
+        if (!down) {
+            heldKeys.remove(keyBind);
+        }
+    }
+
+    private void toggleAutoLeft() {
+        disableSmartAttackByConflict();
+        disableHoldLeftByConflict();
+        if (shouldLeftClick) {
+            stopAutoLeft();
+        } else {
+            lastDestroyPos = null;
+            shouldLeftClick = true;
+        }
+    }
+
+    private void toggleSmartAttack() {
+        disableAutoLeftByConflict();
+        disableHoldLeftByConflict();
+        shouldSmartAttack = !shouldSmartAttack;
+    }
+
+    private void toggleAutoRight() {
+        disableHoldRightByConflict();
+        shouldRightClick = !shouldRightClick;
+    }
+
+    private void toggleHoldLeft() {
+        disableAutoLeftByConflict();
+        disableSmartAttackByConflict();
+        holdLeftWasPressed = true;
+    }
+
+    private void toggleHoldRight() {
+        disableAutoRightByConflict();
+        holdRightWasPressed = true;
+    }
+
+    private void cycleSpeed() {
+        String plural = "s";
+        clickTickInterval += config.getTickStep();
+        if (clickTickInterval > config.getMaxTicks()) {
+            plural = "";
+            clickTickInterval = config.getMinTicks();
+        }
+        sendMessageWithId("New auto click interval: every " + clickTickInterval + " tick" + plural);
     }
 
     public void onInitGuiPre() {

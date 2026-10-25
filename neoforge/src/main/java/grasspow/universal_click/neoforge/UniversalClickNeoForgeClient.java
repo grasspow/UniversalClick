@@ -51,6 +51,14 @@ public class UniversalClickNeoForgeClient {
     }
 
     @SubscribeEvent
+    private void onClientTickPre(ClientTickEvent.Pre event) {
+        lazyInit();
+        if (clickHandler != null) {
+            clickHandler.pollKeyBindings();
+        }
+    }
+
+    @SubscribeEvent
     private void onClientTick(ClientTickEvent.Post event) {
         lazyInit();
         if (clickHandler != null) {
@@ -62,14 +70,6 @@ public class UniversalClickNeoForgeClient {
     private void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         if (clickHandler != null) {
             clickHandler.reset();
-        }
-    }
-
-    @SubscribeEvent
-    private void onKeyInput(InputEvent.Key event) {
-        lazyInit();
-        if (clickHandler != null) {
-            clickHandler.onKeyPressed();
         }
     }
 

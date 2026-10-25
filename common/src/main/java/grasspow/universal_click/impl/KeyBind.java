@@ -29,4 +29,9 @@ public class KeyBind implements IKeyBind {
         return key.isDown();
     }
 
+    @Override
+    public boolean consumeClick() {
+        return key.consumeClick();
+    }
+
 }
